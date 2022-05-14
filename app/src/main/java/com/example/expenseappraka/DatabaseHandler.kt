@@ -18,7 +18,8 @@ class DatabaseHandler(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        // Called when the database needs to be upgraded
+        db!!.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        onCreate(db)
     }
 
     //Insert
@@ -65,6 +66,20 @@ class DatabaseHandler(context: Context) :
         db.close()
         return arrayList
     }
+
+    fun updateEntry(obj: DataClass): Boolean {
+        val db = this.writableDatabase
+
+        val contentValues = ContentValues()
+        contentValues.put(ID, obj.id)
+        contentValues.put(EXPENSE_NAME, obj.expenseName)
+        contentValues.put(EXPENSE_AMOUNT, obj.expenseAmount)
+        contentValues.put(EXPENSE_NAME, obj.expenseDate)
+        val _success = db.update(TABLE_NAME, contentValues,"id=" + obj.id,null)
+        db.close()
+        return Integer.parseInt("$_success") != -1
+    }
+
     fun deleteEntry(_id: String): Boolean {
         val db = this.writableDatabase
         val _success = db.delete(TABLE_NAME, ID + "=?", arrayOf(_id)).toLong()
